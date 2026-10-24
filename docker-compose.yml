@@ -1,0 +1,10 @@
+# Runs the API in a container (the web app is deployed separately, e.g. on Vercel).
+services:
+  api:
+    build: ./apps/api
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+    ports: ["4000:4000"]
+    restart: unless-stopped

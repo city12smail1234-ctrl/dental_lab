@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-navy-900: #0b2545;
+  --color-navy-700: #13315c;
+  --color-cyan-accent: #1aa5bd;
+}
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+}
+
+:root { --bg: #ffffff; --fg: #0b2545; --muted: #5b6b82; --surface: #f2f8fb; --line: #dde6ee; }
+.dark {
+  --bg: #06101f; --fg: #e8f1fb; --muted: #93a4bb; --surface: #0c1b30; --line: #1b2c45;
+  --color-navy-900: #e8f1fb; --color-cyan-accent: #3cc8de;
+}
+
+@layer base {
+  * { border-color: var(--line); }
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+  body { background: var(--bg); color: var(--fg); font-family: 'Readex Pro', system-ui, sans-serif; }
+  input { background: var(--surface); color: var(--fg); }
+  input::placeholder { color: var(--muted); }
+  :focus-visible { outline: 2px solid var(--color-cyan-accent); outline-offset: 2px; }
+}
+
+/* Keep the legacy pages (dashboard/admin) readable in dark mode */
+.dark .bg-navy-900 { color: #06101f; }
+.dark .bg-cyan-50 { background: #0c2a3a; }
+.dark .hover\:bg-slate-50:hover { background: var(--surface); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+@media print { header, nav, aside, footer { display: none !important; } body { background: #fff !important; color: #000 !important; } }
