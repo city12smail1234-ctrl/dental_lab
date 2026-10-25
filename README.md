@@ -6,7 +6,7 @@
 
 ## التشغيل المحلي
 1. انسخ `.env.example` إلى `.env` واملأه (مفاتيح Supabase).
-2. في Supabase SQL Editor نفّذ ملفات `supabase/migrations/0001…0010` بالترتيب (أو `all_migrations.sql` لمشروع جديد فاضي).
+2. في Supabase SQL Editor نفّذ ملفات `supabase/migrations/0001…0012` بالترتيب (أو `all_migrations.sql` لمشروع جديد فاضي).
 3. `npm install`
 4. `npm run dev:api` (الـ API على 4000، و`/docs` للتوثيق) و`npm run dev:web` (الموقع على 3000).
 

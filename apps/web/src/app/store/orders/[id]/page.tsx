@@ -34,6 +34,8 @@ export default function OrderPage() {
   }
   async function send(e: React.FormEvent) {
     e.preventDefault(); if (!file) return;
+    const max = Number(process.env.NEXT_PUBLIC_MAX_UPLOAD_MB) || 5;
+    if (file.size > max * 1048576) { setErr(t('fiTooBig').replace('{n}', String(max))); return; }
     setBusy(true); setErr('');
     try {
       const fd = new FormData(); fd.append('reference', ref); fd.append('file', file);

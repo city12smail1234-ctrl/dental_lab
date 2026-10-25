@@ -4,7 +4,7 @@ services:
     name: city-smile-api
     runtime: node
     rootDir: apps/api
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build   # --include=dev: Render builds in production mode and would skip the build tools
     startCommand: npm run start
     healthCheckPath: /health
     autoDeploy: true

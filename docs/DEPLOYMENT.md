@@ -28,7 +28,7 @@ git push -u origin main
 ## 1) Supabase للإنتاج
 1. **New project** — اختار أقرب منطقة، وكلمة سر قوية للقاعدة واحفظها.
 2. **SQL Editor ثم New query**، والصق محتوى الملف **`supabase/all_migrations.sql`** كله، واضغط **Run**. لازم تظهر **Success**.
-   - الملف ده هو كل التحديثات من 0001 لـ 0010 بالترتيب، لقاعدة جديدة فقط. **ما تشغّلوش على مشروع التجربة** (هيطلع أخطاء إن الجداول موجودة).
+   - الملف ده هو كل التحديثات من 0001 لـ 0012 بالترتيب، لقاعدة جديدة فقط. **ما تشغّلوش على مشروع التجربة** (هيطلع أخطاء إن الجداول موجودة).
 3. تأكد من **Storage**: لازم تلاقي `product-images` و`service-images` (عامين)، و`case-files` و`payment-proofs` (**Private**).
 4. **Authentication ثم URL Configuration** (هتكملها بعد ما تعرف عنوان الموقع، خطوة 4).
 5. **Authentication ثم Providers ثم Email:** خلّي **Confirm email** مفعّل.
@@ -42,7 +42,7 @@ git push -u origin main
 1. على render.com اعمل حساب واربطه بـ GitHub.
 2. **New ثم Blueprint** واختار مستودعك (هيقرا `render.yaml`). أو **New ثم Web Service** يدويًا بالإعدادات دي:
    - Root Directory: `apps/api`
-   - Build Command: `npm install && npm run build`
+   - Build Command: `npm install --include=dev && npm run build`  (**لازم `--include=dev`**، وإلا البناء بيفشل برسالة `nest: not found` لأن Render بيتخطى أدوات البناء في وضع الإنتاج)
    - Start Command: `npm run start`
    - Health Check Path: `/health`
 3. المتغيرات (Environment):
@@ -148,3 +148,12 @@ select id, 'super_admin' from auth.users where email = 'ايميلك@gmail.com';
 
 ## تنبيهات واتساب / تيليجرام (اختياري)
 راجع `docs/ALERTS.md`. مهم: لو الـ API على خطة مجانية بتنام، الرسائل هتتأخر لحد ما يصحى.
+
+## بدون فيزا: الـ API على Vercel (بدل Render)
+لو Render طلب فيزا، شغّل الـ API على Vercel كمشروع تاني من نفس الـ repository:
+1. Vercel ثم **Add New ثم Project**، اختار نفس الـ repository، و**Root Directory = `apps/api`**، و**Framework Preset = Other**. (الأوامر جاهزة في `apps/api/vercel.json`.)
+2. المتغيرات: `SUPABASE_URL` و`SUPABASE_SERVICE_ROLE_KEY` (الـ Secret key، هنا بس) و`WEB_ORIGIN` (عنوان الموقع بالظبط، من غير `/` في الآخر) و`DISABLE_OUTBOX=true`.
+3. بعد النشر افتح `عنوان-الـAPI/health`، لازم تشوف `{"status":"ok"}`.
+4. في مشروع **الموقع**: `NEXT_PUBLIC_API_URL` = عنوان الـ API الجديد، و`NEXT_PUBLIC_MAX_UPLOAD_MB=4`، ثم **Redeploy**.
+
+**حدود لازم تعرفها:** حجم أي طلب على Vercel حوالي 4.5MB (فالملفات الأكبر مش هتترفع)، وأول طلب بعد فترة سكون بياخد ثانية أو اتنين، ومفيش مؤقت شغال في الخلفية. تنبيهات واتساب وتيليجرام محتاجة جدولة خارجية: ضيف `CRON_SECRET`، واجعل أي خدمة جدولة مجانية (cron-job.org مثلًا) تبعت كل دقيقة: `POST عنوان-الـAPI/internal/outbox/tick` وفيه الهيدر `x-cron-secret: القيمة`.

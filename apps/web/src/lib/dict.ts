@@ -157,6 +157,7 @@ export const dict: Record<Lang, Record<string, string>> = {
     ctaT: 'جاهز تبدأ؟', ctaD: 'افتح حساب طبيب وابعت أول حالة. هنراجع حسابك ونفعّله بسرعة.',
     cdLeft: 'متبقي', cdOver: 'متأخر', cdD: 'ي', dueTitle: 'موعد التسليم', dueHint: 'حدد المدة من دلوقتي، وهيظهر للدكتور عدّاد تنازلي.',
     dueAmount: 'المدة', dueUnitH: 'ساعة', dueUnitD: 'يوم', dueSet: 'تحديد الموعد', dueClear: 'إلغاء الموعد', dueNone: 'لم يُحدَّد موعد',
+    fiTooBig: 'الملف أكبر من الحد المسموح ({n}MB)',
   },
   en: {
     brand: 'City Smile',
@@ -314,5 +315,6 @@ export const dict: Record<Lang, Record<string, string>> = {
     ctaT: 'Ready to start?', ctaD: 'Create a doctor account and send your first case. We review and activate accounts quickly.',
     cdLeft: 'Left', cdOver: 'Overdue', cdD: 'd', dueTitle: 'Delivery deadline', dueHint: 'Choose the time from now; the doctor sees a live countdown.',
     dueAmount: 'Time', dueUnitH: 'hours', dueUnitD: 'days', dueSet: 'Set deadline', dueClear: 'Clear deadline', dueNone: 'No deadline set',
+    fiTooBig: 'The file is larger than the allowed {n}MB',
   },
 };

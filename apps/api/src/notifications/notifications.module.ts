@@ -6,6 +6,7 @@ import { randomBytes } from 'node:crypto';
 import { AuthUser, CurrentUser } from '../auth/decorators';
 import { SupabaseService } from '../supabase/supabase.service';
 import { tgConfig, waConfig } from './external';
+import { InternalController } from './internal.controller';
 import { OutboxService } from './outbox.service';
 
 const TOPICS = ['cases', 'orders', 'doctors', 'deliveries'];
@@ -116,5 +117,5 @@ export class NotificationsController {
   @Throttle({ default: { limit: 5, ttl: 60_000 } }) @Post('test') test(@CurrentUser() u: AuthUser) { return this.svc.sendTest(u); }
 }
 
-@Module({ controllers: [NotificationsController], providers: [NotificationsService, OutboxService] })
+@Module({ controllers: [NotificationsController, InternalController], providers: [NotificationsService, OutboxService] })
 export class NotificationsModule {}

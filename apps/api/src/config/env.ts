@@ -12,7 +12,7 @@ const schema = z.object({
   ENABLE_DOCS: z.enum(['true', 'false']).optional(),
   // optional external alert channels (WhatsApp Cloud API / Telegram bot)
   WHATSAPP_TOKEN: z.string().optional(), WHATSAPP_PHONE_NUMBER_ID: z.string().optional(), WHATSAPP_TEMPLATE: z.string().optional(), WHATSAPP_TEMPLATE_LANG: z.string().optional(),
-  TELEGRAM_BOT_TOKEN: z.string().optional(), TELEGRAM_BOT_USERNAME: z.string().optional(), PUBLIC_WEB_URL: z.string().optional(),
+  TELEGRAM_BOT_TOKEN: z.string().optional(), TELEGRAM_BOT_USERNAME: z.string().optional(), PUBLIC_WEB_URL: z.string().optional(), CRON_SECRET: z.string().optional(), DISABLE_OUTBOX: z.string().optional(),
 });
 
 export const validateEnv = (config: Record<string, unknown>) => {

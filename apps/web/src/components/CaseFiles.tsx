@@ -4,6 +4,8 @@ import { api } from '@/lib/api';
 import { usePrefs } from '@/lib/prefs';
 
 export type CaseFile = { id: string; original_name: string; size_bytes: number; uploader_role: string; created_at: string };
+// On Vercel a request body is limited to about 4.5 MB, so the site is told the real limit through NEXT_PUBLIC_MAX_UPLOAD_MB.
+const MAX_MB = Number(process.env.NEXT_PUBLIC_MAX_UPLOAD_MB) || 25;
 const size = (n: number) => (n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
 
 /** Files live in a private bucket: opening a file asks the API for a 5-minute signed link. */
@@ -17,6 +19,7 @@ export function CaseFiles({ base, caseId, files, canUpload, canDelete, onChange,
   async function upload(list: FileList) {
     setBusy(true); setErr('');
     for (const f of Array.from(list)) {
+      if (f.size > MAX_MB * 1048576) { setErr(`${f.name}: ${t('fiTooBig').replace('{n}', String(MAX_MB))}`); break; }
       try { const fd = new FormData(); fd.append('file', f); onChange((await api(`${base}/${caseId}/files`, { method: 'POST', body: fd })) as never); }
       catch (e) { setErr(`${f.name}: ${(e as Error).message}`); break; }
     }
@@ -51,7 +54,7 @@ export function CaseFiles({ base, caseId, files, canUpload, canDelete, onChange,
         <label className="block text-sm">
           <span className="text-muted">{busy ? t('fiUploading') : t('fiUpload')}</span>
           <input type="file" multiple disabled={busy} accept=".jpg,.jpeg,.png,.webp,.pdf,.zip,.stl,.ply" className="mt-1 block" onChange={(e) => { if (e.target.files?.length) upload(e.target.files); e.target.value = ''; }} />
-          <span className="text-xs text-muted">{t('fiHint')}</span>
+          <span className="text-xs text-muted">{t('fiHint').replace('25MB', `${MAX_MB}MB`)}</span>
         </label>
       )}
     </section>

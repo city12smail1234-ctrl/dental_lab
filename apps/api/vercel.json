@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npm install --include=dev && npm run build",
+  "outputDirectory": "public",
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
+  "functions": { "api/index.js": { "includeFiles": "dist/**", "maxDuration": 30 } }
+}
