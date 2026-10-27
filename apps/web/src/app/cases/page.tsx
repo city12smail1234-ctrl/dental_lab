@@ -45,7 +45,7 @@ export default function Cases() {
             <Link href={`/cases/${c.id}`} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 hover:bg-surface">
               <div className="text-sm">
                 <p className="font-semibold">{lang === 'ar' ? c.service_name_ar : c.service_name_en}{c.quantity > 1 && <span dir="ltr"> ×{c.quantity}</span>}</p>
-                <p className="text-muted"><span dir="ltr">{c.case_number}</span> · <span dir="ltr">{c.patient_ref}</span> · {date(c.submitted_at)}</p>
+                <p className="text-muted"><span dir="ltr">{c.case_number}</span> · <span dir="auto">{c.patient_ref}</span> · {date(c.submitted_at)}</p>
                 {c.due_at && isOpenStatus(c.status) ? <div className="mt-1"><Countdown due={c.due_at} /></div> : c.estimated_completion && <p className="text-muted">{t('csEta')}: {date(c.estimated_completion)}</p>}
               </div>
               <CaseBadge s={c.status} />

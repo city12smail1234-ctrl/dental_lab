@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { motion, useScroll, useSpring, useTransform, Variants } from 'motion/react';
 import { ReactNode, useRef, useState } from 'react';
 import { Logo } from '@/components/Logo';
+import { PriceList } from '@/components/PriceList';
 import { usePrefs } from '@/lib/prefs';
 
 // Classic shade-guide codes with approximate display colors.
@@ -23,7 +24,6 @@ export default function Home() {
   const { scrollYProgress: stepP } = useScroll({ target: steps, offset: ['start 75%', 'end 60%'] });
   const line = useSpring(stepP, { stiffness: 90, damping: 20 });
   const words = t('h1').split(' ');
-  const marquee = [1, 2, 3, 4, 5, 6].map((n) => t(`s${n}`));
 
   return (
     <main className="overflow-x-clip">
@@ -66,27 +66,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MARQUEE */}
-      <div className="border-y bg-surface py-4" dir="ltr" aria-hidden>
-        <motion.div className="flex w-max gap-10 whitespace-nowrap text-lg text-muted" animate={{ x: ['0%', '-50%'] }} transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}>
-          {[...marquee, ...marquee, ...marquee, ...marquee].map((m, k) => <span key={k} className="flex items-center gap-10">{m}<span className="h-1.5 w-1.5 rounded-full bg-cyan-accent" /></span>)}
-        </motion.div>
-      </div>
-
-      {/* SERVICES */}
+      {/* PRICE LIST */}
       <section id="services" className="mx-auto max-w-6xl px-5 py-20">
-        <Reveal><h2 className="text-2xl font-semibold md:text-3xl">{t('servicesT')}</h2></Reveal>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map((n) => (
-            <Reveal key={n} i={n}>
-              <motion.div whileHover={{ y: -8 }} transition={{ type: 'spring', stiffness: 300, damping: 18 }} className="group h-full rounded-2xl border p-6 transition-colors hover:border-cyan-accent hover:bg-surface">
-                <motion.div whileHover={{ rotate: 12, scale: 1.15 }} className="mb-4 inline-block"><Logo size={34} /></motion.div>
-                <h3 className="text-lg font-medium">{t(`s${n}`)}</h3>
-                <p className="mt-2 leading-7 text-muted">{t(`s${n}d`)}</p>
-              </motion.div>
-            </Reveal>
-          ))}
-        </div>
+        <Reveal>
+          <h2 className="text-2xl font-semibold md:text-3xl">{t('priceT')}</h2>
+          <p className="mt-2 text-muted">{t('priceSub')}</p>
+        </Reveal>
+        <Reveal i={1} className="mt-8"><PriceList /></Reveal>
       </section>
 
       {/* FEATURES */}

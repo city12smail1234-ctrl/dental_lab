@@ -45,7 +45,7 @@ export default function AdminCases() {
               <div className="text-sm">
                 <p className="font-semibold">{c.doctor?.full_name ?? '—'}{c.doctor?.clinic_name && <span className="font-normal text-muted"> — {c.doctor.clinic_name}</span>}</p>
                 <p>{lang === 'ar' ? c.service_name_ar : c.service_name_en}{c.quantity > 1 && <span dir="ltr"> ×{c.quantity}</span>}</p>
-                <p className="text-muted"><span dir="ltr">{c.case_number}</span> · <span dir="ltr">{c.patient_ref}</span></p>
+                <p className="text-muted"><span dir="ltr">{c.case_number}</span> · <span dir="auto">{c.patient_ref}</span></p>
                 {c.due_at && isOpenStatus(c.status) && <div className="mt-1"><Countdown due={c.due_at} /></div>}
                 <p className="text-muted">{when(c.submitted_at)}</p>
               </div>

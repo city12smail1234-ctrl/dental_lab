@@ -77,7 +77,7 @@ export default function AdminCase() {
       <section className="space-y-1 rounded-2xl border p-4 text-sm">
         <p><b>{t('aoCustomer')}:</b> {c.doctor.full_name ?? '—'} <span className="text-muted" dir="ltr">{c.doctor.email} · {c.doctor.phone}</span></p>
         <p><b>{t('acClinic')}:</b> {c.doctor.clinic_name ?? '—'} {c.doctor.clinic_address ? `— ${c.doctor.clinic_address}` : ''}</p>
-        <p><b>{t('csService')}:</b> {lang === 'ar' ? c.service_name_ar : c.service_name_en} · <span dir="ltr">{c.patient_ref}</span></p>
+        <p><b>{t('csService')}:</b> {lang === 'ar' ? c.service_name_ar : c.service_name_en} · <span dir="auto">{c.patient_ref}</span></p>
         {c.total != null && <p><b>{t('csTotal')}:</b> {c.quantity} × <span dir="ltr">{money(c.unit_price ?? 0, lang)}</span> = <b dir="ltr">{money(c.total, lang)}</b></p>}
         {c.tooth_numbers && <p><b>{t('csTeeth').split(' (')[0]}:</b> <span dir="ltr">{c.tooth_numbers}</span></p>}
         {c.material && <p><b>{t('csMaterial')}:</b> {c.material}</p>}

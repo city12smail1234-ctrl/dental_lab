@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { money } from '@/lib/money';
+import { ToothChart } from '@/components/ToothChart';
 import { usePrefs } from '@/lib/prefs';
 
 type Svc = { id: string; name_ar: string; name_en: string; price: number };
@@ -16,6 +17,7 @@ export default function NewCase() {
   const [f, setF] = useState({ service_id: '', patient_ref: '', tooth_numbers: '', material: '', shade: '', instructions: '' });
   const [qty, setQty] = useState('1');
   const [files, setFiles] = useState<File[]>([]);
+  const [teeth, setTeeth] = useState<number[]>([]);
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const key = useRef(crypto.randomUUID()); // same key on retry => never two cases for one click
@@ -27,7 +29,8 @@ export default function NewCase() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault(); setBusy(true); setErr('');
-    const body = Object.fromEntries(Object.entries(f).map(([k, v]) => [k, !v.trim() ? undefined : v]));
+    const body: Record<string, unknown> = Object.fromEntries(Object.entries(f).map(([k, v]) => [k, !v.trim() ? undefined : v]));
+    body.tooth_numbers = teeth.length ? teeth.join(', ') : undefined;
     try { const c = await api<{ id: string }>('/lab-cases', { method: 'POST', body: JSON.stringify({ ...body, quantity: Number(qty) || 1, idempotency_key: key.current }) }); let failed = false;
       for (const file of files) { try { const fd = new FormData(); fd.append('file', file); await api(`/lab-cases/${c.id}/files`, { method: 'POST', body: fd }); } catch { failed = true; } }
       router.replace(`/cases/${c.id}${failed ? '?f=failed' : ''}`); }
@@ -58,9 +61,9 @@ export default function NewCase() {
             <p className="text-xs text-muted">{t('csOnAccount')}</p>
           </div>
         </div>
-        <label className="block text-sm">{t('csPatient')}<input required maxLength={60} dir="ltr" className={inp} value={f.patient_ref} onChange={set('patient_ref')} /><span className="text-xs text-muted">{t('csPatientHint')}</span></label>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <label className="text-sm">{t('csTeeth')}<input pattern="[0-9,\-\s]{1,100}" dir="ltr" className={inp} value={f.tooth_numbers} onChange={set('tooth_numbers')} /></label>
+        <label className="block text-sm">{t('csPatient')}<input required maxLength={60} dir="auto" className={inp} value={f.patient_ref} onChange={set('patient_ref')} /><span className="text-xs text-muted">{t('csPatientHint')}</span></label>
+        <ToothChart value={teeth} onChange={setTeeth} />
+        <div className="grid gap-4 sm:grid-cols-2">
           <label className="text-sm">{t('csMaterial')}<input maxLength={100} className={inp} value={f.material} onChange={set('material')} /></label>
           <label className="text-sm">{t('csShade')}<input maxLength={30} dir="ltr" className={inp} value={f.shade} onChange={set('shade')} /></label>
         </div>

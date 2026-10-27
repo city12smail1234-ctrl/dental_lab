@@ -69,7 +69,7 @@ export default function CasePage() {
 
       <section className="space-y-1 rounded-2xl border p-5 text-sm">
         <h2 className="mb-2 font-medium">{t('csSpecs')}</h2>
-        <p>{lang === 'ar' ? c.service_name_ar : c.service_name_en} · <span dir="ltr">{c.patient_ref}</span></p>
+        <p>{lang === 'ar' ? c.service_name_ar : c.service_name_en} · <span dir="auto">{c.patient_ref}</span></p>
         {c.total != null && <p>{t('csQty')}: {c.quantity} × <span dir="ltr">{money(c.unit_price ?? 0, lang)}</span> = <b dir="ltr">{money(c.total, lang)}</b></p>}
         {c.tooth_numbers && <p>{t('csTeeth').split(' (')[0]}: <span dir="ltr">{c.tooth_numbers}</span></p>}
         {c.material && <p>{t('csMaterial')}: {c.material}</p>}

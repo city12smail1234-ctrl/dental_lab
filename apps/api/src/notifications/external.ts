@@ -7,14 +7,14 @@ const T: Record<Lang, Record<string, string>> = {
   ar: {
     case_new: '🦷 حالة جديدة {ref}{by}', case_received: '✅ تم استلام حالتك {ref}', case_status: 'الحالة {ref}: {status}', case_message: '💬 رسالة جديدة على الحالة {ref}{by}',
     order_new: '🛒 طلب جديد {ref}{by}', order_received: '✅ تم استلام طلبك {ref}', order_status: 'الطلب {ref}: {status}', payment_proof: '🧾 إيصال دفع جديد للطلب {ref}{by}',
-    payment_paid: '✅ تم تأكيد دفع الطلب {ref}', payment_rejected: '⚠️ تم رفض إيصال الطلب {ref}، أرسل إيصالًا صحيحًا', doctor_new: '👤 طبيب جديد بانتظار الموافقة: {ref}',
+    payment_paid: '✅ تم تأكيد دفع الطلب {ref}', payment_rejected: '⚠️ تم رفض إيصال الطلب {ref}، أرسل إيصالًا صحيحًا', doctor_new: '👤 طبيب جديد سجّل: {ref}',
     doctor_status: '{status}', delivery_new: '🚚 طلب توصيل جديد {ref}{by}', delivery_status: 'التوصيل {ref}: {status}', delivery_failed: '⚠️ فشل توصيل {ref}{by}',
     delivery_assigned: '🚚 تم تعيين توصيل لك {ref}', test: '✅ رسالة تجريبية من City Smile Dental Lab. التنبيهات شغالة.', generic: 'إشعار جديد',
   },
   en: {
     case_new: '🦷 New case {ref}{by}', case_received: '✅ Your case {ref} was received', case_status: 'Case {ref}: {status}', case_message: '💬 New message on case {ref}{by}',
     order_new: '🛒 New order {ref}{by}', order_received: '✅ Your order {ref} was received', order_status: 'Order {ref}: {status}', payment_proof: '🧾 New payment receipt for order {ref}{by}',
-    payment_paid: '✅ Payment confirmed for order {ref}', payment_rejected: '⚠️ The receipt for order {ref} was rejected, please send a valid one', doctor_new: '👤 New doctor awaiting approval: {ref}',
+    payment_paid: '✅ Payment confirmed for order {ref}', payment_rejected: '⚠️ The receipt for order {ref} was rejected, please send a valid one', doctor_new: '👤 New doctor registered: {ref}',
     doctor_status: '{status}', delivery_new: '🚚 New delivery request {ref}{by}', delivery_status: 'Delivery {ref}: {status}', delivery_failed: '⚠️ Delivery {ref} failed{by}',
     delivery_assigned: '🚚 A delivery was assigned to you {ref}', test: '✅ Test message from City Smile Dental Lab. Alerts are working.', generic: 'New notification',
   },

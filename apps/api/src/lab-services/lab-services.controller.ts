@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, ParseUUIDPipe, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { AuthUser, CurrentUser, Roles } from '../auth/decorators';
+import { AuthUser, CurrentUser, Public, Roles } from '../auth/decorators';
 import { CreateCategoryDto, CreateServiceDto, UpdateCategoryDto, UpdateServiceDto } from './dto';
 import { LabServicesService } from './lab-services.service';
 
@@ -14,6 +14,27 @@ export class LabServicesController {
   /** Any signed-in user: active categories and services only. */
   @Get()
   list() { return this.svc.list(true); }
+}
+
+/** The landing page shows the price list to everyone, so this one endpoint needs no login. Only public-safe fields are returned. */
+@ApiTags('public')
+@Controller('public')
+export class PublicPriceListController {
+  constructor(private readonly svc: LabServicesService) {}
+
+  @Public()
+  @Get('price-list')
+  @Header('Cache-Control', 'public, max-age=60, s-maxage=60')
+  async priceList() {
+    const { categories, services } = await this.svc.list(true);
+    return {
+      categories: categories.map((c: any) => ({ id: c.id, name_ar: c.name_ar, name_en: c.name_en })),
+      services: services.map((s: any) => ({
+        id: s.id, category_id: s.category_id, name_ar: s.name_ar, name_en: s.name_en, description_ar: s.description_ar, description_en: s.description_en,
+        material: s.material, price: s.price, turnaround_days: s.turnaround_days, image_url: s.image_url,
+      })),
+    };
+  }
 }
 
 @ApiTags('admin-lab-services')
