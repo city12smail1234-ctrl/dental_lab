@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { usePrefs } from '@/lib/prefs';
 import { supabase } from '@/lib/supabase';
@@ -14,6 +14,14 @@ export default function Login() {
   const [msg, setMsg] = useState('');
   const [ok, setOk] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    supabase().auth.getSession().then(async ({ data }) => {
+      if (!data.session) return;
+      try { const me = await api<{ roles: string[] }>('/auth/me'); router.replace(me.roles.some((r) => r !== 'doctor') ? '/admin' : '/dashboard'); }
+      catch { router.replace('/dashboard'); }
+    });
+  }, [router]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

@@ -3,9 +3,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators';
 import { SupabaseService } from '../supabase/supabase.service';
 
-const TABLES = ['notification_outbox', 'notification_prefs', 'deliveries', 'notifications', 'lab_case_files', 'doctor_account_entries', 'lab_services', 'products', 'cart_items', 'orders', 'app_settings', 'lab_cases'];
+const TABLES = ['account_payments', 'notification_outbox', 'notification_prefs', 'deliveries', 'notifications', 'lab_case_files', 'doctor_account_entries', 'lab_services', 'products', 'cart_items', 'orders', 'app_settings', 'lab_cases'];
 const Z = '00000000-0000-0000-0000-000000000000';
 const FUNCTIONS: [string, object][] = [
+  ['confirm_dues', { p_id: Z, p_admin: null }],
   ['claim_outbox', { p_limit: 0 }],
   ['delivery_move', { p_id: Z, p_status: 'x', p_note: null, p_user: null, p_force: false, p_received_by: null }],
   ['report_summary', { p_from: '2026-01-01', p_to: '2026-01-01' }],
@@ -40,6 +41,7 @@ export class DiagnosticsService {
         orders_pending: await this.count('orders', (q) => q.eq('status', 'pending')),
         cases_open: await this.count('lab_cases', (q) => q.not('status', 'in', '(delivered,rejected,cancelled)')),
         deliveries_new: await this.count('deliveries', (q) => q.eq('status', 'awaiting_confirmation')),
+        dues_pending: await this.count('account_payments', (q) => q.eq('status', 'pending')),
         cases_new: await this.count('lab_cases', (q) => q.eq('status', 'submitted')),
         products_active: (prods ?? []).length,
         products_low: (prods ?? []).filter((p) => p.stock_quantity <= p.low_stock_threshold).length,

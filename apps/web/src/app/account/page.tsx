@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { PayDues } from '@/components/PayDues';
 import { api } from '@/lib/api';
 import { money } from '@/lib/money';
 import { usePolling } from '@/lib/poll';
@@ -33,6 +34,7 @@ export default function Account() {
           <p><span className="block text-muted">{t('acctPaid')}</span><b dir="ltr">{money(s.summary.credited, lang)}</b></p>
         </div>
       </section>
+      <PayDues balance={b} onChange={load} />
       <p className="text-sm text-muted">{t('acctNote')}</p>
       <section>
         <h2 className="mb-3 font-semibold">{t('acctEntries')}</h2>

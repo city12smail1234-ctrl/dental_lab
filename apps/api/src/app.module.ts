@@ -19,6 +19,7 @@ import { AccountsModule } from './accounts/accounts.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DeliveriesModule } from './deliveries/deliveries.module';
 import { AdminToolsModule } from './admin-tools/admin-tools.module';
+import { DuesModule } from './accounts/dues.module';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -34,6 +35,7 @@ import { HealthController } from './health/health.controller';
     OrdersModule,
     LabCasesModule,
     AccountsModule,
+    DuesModule,
     NotificationsModule,
     DeliveriesModule,
     AdminToolsModule,

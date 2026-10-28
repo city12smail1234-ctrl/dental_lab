@@ -41,6 +41,7 @@ const GROUPS: { h: string; items: Item[] }[] = [
     { k: 'aPrices', href: '/admin/prices', icon: 'tag', roles: ['lab_manager'] },
   ] },
   { h: 'ngBusiness', items: [
+    { k: 'aDues', href: '/admin/payments', icon: 'wallet', badge: 'dues', roles: ['lab_manager', 'accountant'] },
     { k: 'aAccounts', href: '/admin/accounts', icon: 'wallet', roles: ['lab_manager', 'accountant'] },
     { k: 'aReports', href: '/admin/reports', icon: 'chart', roles: ['lab_manager', 'accountant'] },
     { k: 'aStaff', href: '/admin/staff', icon: 'users', roles: [] },
@@ -82,7 +83,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, [me, path, can, router]);
 
   const loadBadges = useCallback(() => {
-    api<{ counts: Record<string, number> }>('/admin/diagnostics').then((d) => setBadges((b) => ({ ...b, orders: d.counts.orders_pending, cases: d.counts.cases_new, deliveries: d.counts.deliveries_new }))).catch(() => {});
+    api<{ counts: Record<string, number> }>('/admin/diagnostics').then((d) => setBadges((b) => ({ ...b, orders: d.counts.orders_pending, cases: d.counts.cases_new, deliveries: d.counts.deliveries_new, dues: d.counts.dues_pending }))).catch(() => {});
     api<{ doctors: Record<string, number> }>('/admin/stats').then((d) => setBadges((b) => ({ ...b, doctors: d.doctors.pending }))).catch(() => {});
   }, []);
   useEffect(() => { if (me) loadBadges(); }, [me, loadBadges]);

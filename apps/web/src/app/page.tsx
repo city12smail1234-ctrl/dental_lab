@@ -73,6 +73,7 @@ export default function Home() {
           <p className="mt-2 text-muted">{t('priceSub')}</p>
         </Reveal>
         <Reveal i={1} className="mt-8"><PriceList /></Reveal>
+        <Reveal i={2} className="mt-6"><Link href="/prices" className="text-sm text-cyan-accent underline">{t('priceT')} →</Link></Reveal>
       </section>
 
       {/* FEATURES */}

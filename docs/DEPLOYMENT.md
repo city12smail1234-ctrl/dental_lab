@@ -28,7 +28,7 @@ git push -u origin main
 ## 1) Supabase للإنتاج
 1. **New project** — اختار أقرب منطقة، وكلمة سر قوية للقاعدة واحفظها.
 2. **SQL Editor ثم New query**، والصق محتوى الملف **`supabase/all_migrations.sql`** كله، واضغط **Run**. لازم تظهر **Success**.
-   - الملف ده هو كل التحديثات من 0001 لـ 0012 بالترتيب، لقاعدة جديدة فقط. **ما تشغّلوش على مشروع التجربة** (هيطلع أخطاء إن الجداول موجودة).
+   - الملف ده هو كل التحديثات من 0001 لـ 0014 بالترتيب، لقاعدة جديدة فقط. **ما تشغّلوش على مشروع التجربة** (هيطلع أخطاء إن الجداول موجودة).
 3. تأكد من **Storage**: لازم تلاقي `product-images` و`service-images` (عامين)، و`case-files` و`payment-proofs` (**Private**).
 4. **Authentication ثم URL Configuration** (هتكملها بعد ما تعرف عنوان الموقع، خطوة 4).
 5. **Authentication ثم Providers ثم Email:** خلّي **Confirm email** مفعّل.
