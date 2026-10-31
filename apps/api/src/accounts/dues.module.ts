@@ -13,8 +13,8 @@ const MSG: Record<string, string> = { payment_not_found: 'Payment not found', al
 
 class CreateDuesDto {
   @Type(() => Number) @IsNumber({ maxDecimalPlaces: 2 }) @Min(1) @Max(10_000_000) amount: number;
-  @IsIn(['vodafone_cash', 'instapay']) method: string;
-  @IsString() @MinLength(3) @MaxLength(60) reference: string;
+  @IsIn(['vodafone_cash', 'instapay', 'cash']) method: string;
+  @IsOptional() @IsString() @MaxLength(60) reference?: string;
 }
 class RejectDto { @IsOptional() @IsString() @MaxLength(200) reason?: string; }
 
@@ -33,6 +33,7 @@ export class DuesService {
     const methods: { id: string; number?: string; handle?: string; name?: string }[] = [];
     if (s.payments.vodafone_cash.enabled) methods.push({ id: 'vodafone_cash', number: s.payments.vodafone_cash.number, name: s.payments.vodafone_cash.name });
     if (s.payments.instapay.enabled) methods.push({ id: 'instapay', handle: s.payments.instapay.handle, name: s.payments.instapay.name });
+    if (s.payments.cod.enabled) methods.push({ id: 'cash' });   // cash to the lab or the courier; confirmed when received
     return { methods, balance: Number(bal.data?.balance ?? 0) };
   }
 
@@ -45,17 +46,22 @@ export class DuesService {
   async create(userId: string, dto: CreateDuesDto, file?: Express.Multer.File) {
     const o = await this.options(userId);
     if (!o.methods.some((m) => m.id === dto.method)) throw new BadRequestException('This payment method is not available');
-    if (!file) throw new BadRequestException('Receipt image is required');
-    const type = sniff(file.buffer);
-    if (!type) throw new BadRequestException('Only JPEG, PNG or WebP images are allowed');
+    const cash = dto.method === 'cash';
+    if (!cash && (dto.reference?.trim().length ?? 0) < 3) throw new BadRequestException('Enter the transaction number');
+    if (!cash && !file) throw new BadRequestException('Receipt image is required');
+    const type = file ? sniff(file.buffer) : null;
+    if (file && !type) throw new BadRequestException('Only JPEG, PNG or WebP images are allowed');
     const { count } = await this.sb.admin.from('account_payments').select('*', { count: 'exact', head: true }).eq('doctor_id', userId).eq('status', 'pending');
     if ((count ?? 0) >= 3) throw new BadRequestException('You already have 3 payments waiting for confirmation');
 
-    const path = `${userId}/dues/${randomUUID()}.${type.ext}`;
-    const up = await this.sb.admin.storage.from('payment-proofs').upload(path, file.buffer, { contentType: type.mime, upsert: false });
-    if (up.error) throw new BadRequestException(up.error.message);
-    const { error } = await this.sb.admin.from('account_payments').insert({ doctor_id: userId, amount: dto.amount, method: dto.method, reference: dto.reference.trim(), proof_path: path });
-    if (error) { await this.sb.admin.storage.from('payment-proofs').remove([path]); throw new BadRequestException(error.message); }
+    let path: string | null = null;
+    if (file && type) {
+      path = `${userId}/dues/${randomUUID()}.${type.ext}`;
+      const up = await this.sb.admin.storage.from('payment-proofs').upload(path, file.buffer, { contentType: type.mime, upsert: false });
+      if (up.error) throw new BadRequestException(up.error.message);
+    }
+    const { error } = await this.sb.admin.from('account_payments').insert({ doctor_id: userId, amount: dto.amount, method: dto.method, reference: cash ? 'CASH' : dto.reference!.trim(), proof_path: path });
+    if (error) { if (path) await this.sb.admin.storage.from('payment-proofs').remove([path]); throw new BadRequestException(error.message); }
     return this.mine(userId);
   }
 

@@ -23,6 +23,7 @@ export function Navbar() {
           <span className="leading-tight"><span className="block font-bold">{t('brand')}</span><span className="block text-xs text-muted">{t('brandSub')}</span></span>
         </Link>
         <div className="mx-auto hidden gap-6 text-sm text-muted md:flex">
+          <Link href="/works" className="hover:text-fg">{t('navWorks')}</Link>
           <Link href="/prices" className="hover:text-fg">{t('navServices')}</Link>
           <a href="/#process" className="hover:text-fg">{t('navProcess')}</a>
           <a href="/#payment" className="hover:text-fg">{t('navPayment')}</a>

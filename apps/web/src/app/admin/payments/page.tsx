@@ -45,7 +45,7 @@ export default function Payments() {
               <div>
                 <p className="text-lg font-semibold" dir="ltr">{money(p.amount, lang)}</p>
                 <p><Link href={`/admin/accounts/${p.doctor_id}`} className="font-medium text-cyan-accent">{p.profiles?.full_name ?? t('aNoName')}</Link> <span className="text-muted" dir="ltr">{p.profiles?.phone}</span></p>
-                <p className="text-muted">{t(`pm_${p.method}`)} · <span dir="ltr">{p.reference}</span> · {when(p.created_at)}</p>
+                <p className="text-muted">{t(`pm_${p.method}`)}{p.method !== 'cash' && <> · <span dir="ltr">{p.reference}</span></>} · {when(p.created_at)}</p>
               </div>
               <span className={`rounded-full px-3 py-0.5 text-xs ${TONE[p.status]}`}>{t(`dp_${p.status}`)}</span>
             </div>

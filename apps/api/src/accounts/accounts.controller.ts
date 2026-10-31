@@ -22,5 +22,6 @@ export class AdminAccountsController {
   @Get() list() { return this.svc.list(); }
   @Get(':id') one(@Param('id', ParseUUIDPipe) id: string) { return this.svc.one(id); }
   @Post(':id/payments') pay(@CurrentUser() u: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: RecordPaymentDto) { return this.svc.recordPayment(u.id, id, dto); }
+  @Post(':id/remind') remind(@CurrentUser() u: AuthUser, @Param('id', ParseUUIDPipe) id: string) { return this.svc.remind(u.id, id); }
   @Post(':id/adjustments') adjust(@CurrentUser() u: AuthUser, @Param('id', ParseUUIDPipe) id: string, @Body() dto: AdjustmentDto) { return this.svc.adjust(u.id, id, dto); }
 }

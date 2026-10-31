@@ -3,9 +3,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators';
 import { SupabaseService } from '../supabase/supabase.service';
 
-const TABLES = ['account_payments', 'notification_outbox', 'notification_prefs', 'deliveries', 'notifications', 'lab_case_files', 'doctor_account_entries', 'lab_services', 'products', 'cart_items', 'orders', 'app_settings', 'lab_cases'];
+const TABLES = ['works', 'account_payments', 'notification_outbox', 'notification_prefs', 'deliveries', 'notifications', 'lab_case_files', 'doctor_account_entries', 'lab_services', 'products', 'cart_items', 'orders', 'app_settings', 'lab_cases'];
 const Z = '00000000-0000-0000-0000-000000000000';
 const FUNCTIONS: [string, object][] = [
+  ['case_invoices', { p_doctor: Z }],
   ['confirm_dues', { p_id: Z, p_admin: null }],
   ['claim_outbox', { p_limit: 0 }],
   ['delivery_move', { p_id: Z, p_status: 'x', p_note: null, p_user: null, p_force: false, p_received_by: null }],

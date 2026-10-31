@@ -10,7 +10,7 @@ type Row = { id: string; amount: number; method: string; reference: string; stat
 const TONE: Record<string, string> = { pending: 'bg-amber-500/15 text-amber-700 dark:text-amber-300', confirmed: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300', rejected: 'bg-red-500/15 text-red-700 dark:text-red-300' };
 
 /** The doctor pays what he owes: transfer, upload the receipt, and the lab confirms. A confirmed payment is deducted from his account at once. */
-export function PayDues({ balance, onChange }: { balance: number; onChange: () => void }) {
+export function PayDues({ balance, onChange, prefill }: { balance: number; onChange: () => void; prefill?: number | null }) {
   const { t, lang } = usePrefs();
   const MAX = Number(process.env.NEXT_PUBLIC_MAX_UPLOAD_MB) || 5;
   const [o, setO] = useState<Opts | null>(null);
@@ -28,14 +28,19 @@ export function PayDues({ balance, onChange }: { balance: number; onChange: () =
     api<Row[]>('/account/payments').then((r) => setRows((old) => { if (old.length && r.some((n) => old.find((p) => p.id === n.id)?.status !== n.status)) onChange(); return r; })).catch(() => {});
   }, [onChange]);
   useEffect(() => { load(); }, [load]);
+  useEffect(() => {   // "Pay" on an invoice opens the form with that amount
+    if (prefill) { setOpen(true); setAmount(String(Math.round(prefill * 100) / 100)); setMsg(null); setTimeout(() => document.getElementById('pay')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50); }
+  }, [prefill]);
   usePolling(load);
 
   async function send(e: React.FormEvent) {
-    e.preventDefault(); if (!file) return;
-    if (file.size > MAX * 1048576) { setMsg({ ok: false, text: t('fiTooBig').replace('{n}', String(MAX)) }); return; }
+    e.preventDefault();
+    const cash = method === 'cash';
+    if (!cash && !file) return;
+    if (file && file.size > MAX * 1048576) { setMsg({ ok: false, text: t('fiTooBig').replace('{n}', String(MAX)) }); return; }
     setBusy(true); setMsg(null);
     try {
-      const fd = new FormData(); fd.append('amount', amount); fd.append('method', method); fd.append('reference', ref); fd.append('file', file);
+      const fd = new FormData(); fd.append('amount', amount); fd.append('method', method); if (!cash) { fd.append('reference', ref); fd.append('file', file!); }
       setRows(await api<Row[]>('/account/payments', { method: 'POST', body: fd }));
       setMsg({ ok: true, text: t('payDSent') }); setOpen(false); setAmount(''); setRef(''); setFile(null);
     } catch (x) { setMsg({ ok: false, text: (x as Error).message }); }
@@ -48,7 +53,7 @@ export function PayDues({ balance, onChange }: { balance: number; onChange: () =
   const when = (x: string) => new Date(x).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB', { dateStyle: 'medium' });
 
   return (
-    <section className="space-y-4 rounded-2xl border p-5">
+    <section id="pay" className="space-y-4 rounded-2xl border p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-semibold">{t('payDTitle')}</h2>
         {!open && o.methods.length > 0 && <button onClick={() => { setOpen(true); setMsg(null); if (balance > 0) setAmount(String(balance)); }} className="rounded-full bg-navy-900 px-5 py-2 text-sm font-medium text-white">{t('payDTitle')}</button>}
@@ -63,11 +68,14 @@ export function PayDues({ balance, onChange }: { balance: number; onChange: () =
             <label className="text-sm">{t('payDAmount')}<input required type="number" min="1" step="0.01" dir="ltr" className={`${f} mt-1`} value={amount} onChange={(e) => setAmount(e.target.value)} /></label>
             <label className="text-sm">{t('payDMethod')}<select className={`${f} mt-1 bg-bg`} value={method} onChange={(e) => setMethod(e.target.value)}>{o.methods.map((m) => <option key={m.id} value={m.id}>{t(`pm_${m.id}`)}</option>)}</select></label>
           </div>
-          {sel && <p className="rounded-lg bg-bg p-3 text-sm">{t('ckTo')}: <b dir="ltr">{sel.number ?? sel.handle}</b>{sel.name ? ` — ${t('ckAccName')}: ${sel.name}` : ''}</p>}
-          <label className="block text-sm">{t('payDRef')}<input required minLength={3} maxLength={60} className={`${f} mt-1`} value={ref} onChange={(e) => setRef(e.target.value)} /></label>
-          <label className="block text-sm text-muted">{t('payDFile')}<input required type="file" accept="image/jpeg,image/png,image/webp" className="mt-1 block" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
+          {method === 'cash' && <p className="rounded-lg bg-bg p-3 text-sm">{t('payDCash')}</p>}
+          {sel && sel.id !== 'cash' && <p className="rounded-lg bg-bg p-3 text-sm">{t('ckTo')}: <b dir="ltr">{sel.number ?? sel.handle}</b>{sel.name ? ` — ${t('ckAccName')}: ${sel.name}` : ''}</p>}
+          {method !== 'cash' && (<>
+            <label className="block text-sm">{t('payDRef')}<input required minLength={3} maxLength={60} className={`${f} mt-1`} value={ref} onChange={(e) => setRef(e.target.value)} /></label>
+            <label className="block text-sm text-muted">{t('payDFile')}<input required type="file" accept="image/jpeg,image/png,image/webp" className="mt-1 block" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
+          </>)}
           <div className="flex gap-2">
-            <button disabled={busy || !file} className="rounded-xl bg-navy-900 px-5 py-2 text-sm font-medium text-white disabled:opacity-40">{busy ? '…' : t('payDSend')}</button>
+            <button disabled={busy || (method !== 'cash' && !file)} className="rounded-xl bg-navy-900 px-5 py-2 text-sm font-medium text-white disabled:opacity-40">{busy ? '…' : t('payDSend')}</button>
             <button type="button" onClick={() => setOpen(false)} className="rounded-xl border px-4 py-2 text-sm">{t('pCancel')}</button>
           </div>
         </form>

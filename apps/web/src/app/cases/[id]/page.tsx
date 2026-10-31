@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { CaseBadge } from '@/components/Badges';
 import { CaseFiles, CaseFile } from '@/components/CaseFiles';
+import { CaseInvoice } from '@/components/CaseInvoice';
 import { DeliveryCard } from '@/components/DeliveryCard';
 import { api } from '@/lib/api';
 import { money } from '@/lib/money';
@@ -76,6 +77,8 @@ export default function CasePage() {
         {c.shade && <p>{t('csShade')}: <span dir="ltr">{c.shade}</span></p>}
         {c.instructions && <p className="whitespace-pre-wrap text-muted">{c.instructions}</p>}
       </section>
+
+      {c.status === 'delivered' && <CaseInvoice caseId={c.id} />}
 
       <DeliveryCard caseId={c.id} />
 

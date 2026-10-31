@@ -23,6 +23,7 @@ const Icon = ({ n, s = 20 }: { n: string; s?: number }) => (
 );
 
 const LINKS = [
+  { href: '/', k: 'nvMain', icon: 'home', tab: false },
   { href: '/dashboard', k: 'nvHome', icon: 'home', tab: true },
   { href: '/cases', k: 'nvCases', icon: 'clip', tab: true },
   { href: '/services', k: 'nvPrices', icon: 'tag', tab: true },
@@ -48,7 +49,7 @@ function Inner({ children }: { children: ReactNode }) {
     <div className="min-h-screen pb-20 md:pb-0">
       <header className="sticky top-0 z-40 border-b bg-bg/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
-          <Link href="/dashboard" className="flex items-center gap-2"><Logo size={30} /><span className="hidden font-bold sm:block">{t('brand')}</span></Link>
+          <Link href="/" className="flex items-center gap-2"><Logo size={30} /><span className="hidden font-bold sm:block">{t('brand')}</span></Link>
           <nav className="mx-4 hidden items-center gap-1 md:flex" aria-label="main">
             {LINKS.map((l) => (
               <Link key={l.href} href={l.href} className={`rounded-full px-3 py-1.5 text-sm transition-colors ${active === l.href ? 'bg-navy-900 font-medium text-white' : 'text-muted hover:bg-surface hover:text-fg'}`}>{t(l.k)}</Link>

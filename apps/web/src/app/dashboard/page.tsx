@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CaseBadge, StatusBadge } from '@/components/Badges';
+import { Countdown, isOpenStatus } from '@/components/Countdown';
 import { api } from '@/lib/api';
 import { money } from '@/lib/money';
 import { usePolling } from '@/lib/poll';
@@ -12,8 +13,8 @@ import { supabase } from '@/lib/supabase';
 
 type Me = { email?: string; roles: string[] };
 type Doc = { full_name: string | null; phone: string | null; clinic_name: string | null; clinic_address: string | null; status: string; profileComplete: boolean };
-type Case = { id: string; case_number: string; service_name_ar: string; service_name_en: string; status: string };
-type Ord = { id: string; order_number: string; status: string; total: number; order_items: { name_ar: string; name_en: string; quantity: number }[] };
+type Case = { id: string; case_number: string; service_name_ar: string; service_name_en: string; status: string; due_at: string | null };
+type Ord = { id: string; order_number: string; status: string; total: number; due_at: string | null; order_items: { name_ar: string; name_en: string; quantity: number }[] };
 
 export default function Dashboard() {
   const router = useRouter();
@@ -22,6 +23,8 @@ export default function Dashboard() {
   const [doc, setDoc] = useState<Doc | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
   const [orders, setOrders] = useState<Ord[]>([]);
+  const [allCases, setAllCases] = useState<Case[]>([]);
+  const [allOrders, setAllOrders] = useState<Ord[]>([]);
   const [bal, setBal] = useState<number | null>(null);
   const [err, setErr] = useState('');
   const [ok, setOk] = useState(false);
@@ -38,8 +41,8 @@ export default function Dashboard() {
     } catch (e) { setErr((e as Error).message); }
   }
   const refreshLists = () => {
-    api<Case[]>('/lab-cases').then((x) => setCases(x.slice(0, 3))).catch(() => {});
-    api<Ord[]>('/orders').then((x) => setOrders(x.slice(0, 3))).catch(() => {});
+    api<Case[]>('/lab-cases').then((x) => { setAllCases(x); setCases(x.slice(0, 3)); }).catch(() => {});
+    api<Ord[]>('/orders').then((x) => { setAllOrders(x); setOrders(x.slice(0, 3)); }).catch(() => {});
     api<{ summary: { balance: number } }>('/account').then((x) => setBal(Number(x.summary.balance))).catch(() => {});
   };
   useEffect(() => { load(); refreshLists(); /* eslint-disable-next-line */ }, []);
@@ -56,12 +59,15 @@ export default function Dashboard() {
   const isStaff = me.roles.some((r) => r !== 'doctor');
   const f = 'w-full rounded-xl border px-3 py-2.5 text-sm';
   const tile = 'rounded-2xl border p-5 transition-colors hover:bg-surface';
+  const openCases = allCases.filter((c) => isOpenStatus(c.status)).length;
+  const openOrders = allOrders.filter((o) => isOpenStatus(o.status)).length;
+  const nextDue = ([...allCases, ...allOrders].filter((x) => x.due_at && isOpenStatus(x.status)).map((x) => x.due_at as string)).sort()[0];
   const name = (c: Case) => (lang === 'ar' ? c.service_name_ar : c.service_name_en);
 
   return (
     <main className="mx-auto max-w-4xl space-y-8 px-5 py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-semibold">{t('dbWelcome')} {doc.full_name ?? me.email}</h1>
+        <div><h1 className="text-3xl font-semibold">{t('nvHome')}</h1><p className="text-muted">{t('dbWelcome')} {doc.full_name ?? me.email}</p></div>
         <div className="flex items-center gap-3">
           {isStaff && <Link href="/admin" className="rounded-full bg-navy-900 px-5 py-2 text-sm font-medium text-white">{t('dbAdmin')}</Link>}
           <button onClick={async () => { await supabase().auth.signOut(); router.push('/login'); }} className="text-sm text-muted hover:text-fg">{t('dbLogout')}</button>
@@ -70,6 +76,12 @@ export default function Dashboard() {
 
       <p className={`rounded-xl p-4 text-sm ${doc.status === 'approved' ? 'bg-emerald-500/10' : 'bg-amber-500/10'}`}>{t(`ds_${doc.status}`)}</p>
       {err && <p className="text-red-500">{err}</p>}
+
+      <section className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border bg-surface p-5"><p className="text-sm text-muted">{t('dbOpenCases')}</p><p className="mt-1 text-3xl font-semibold" dir="ltr">{openCases}</p></div>
+        <div className="rounded-2xl border bg-surface p-5"><p className="text-sm text-muted">{t('dbActiveOrders')}</p><p className="mt-1 text-3xl font-semibold" dir="ltr">{openOrders}</p></div>
+        <div className="col-span-2 rounded-2xl border bg-surface p-5 md:col-span-1"><p className="mb-2 text-sm text-muted">{t('dbNextDue')}</p>{nextDue ? <Countdown due={nextDue} /> : <span className="text-muted">—</span>}</div>
+      </section>
 
       {bal !== null && (
         <Link href="/account" className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-5 transition-colors hover:opacity-90 ${bal > 0 ? 'bg-amber-500/10' : bal < 0 ? 'bg-emerald-500/10' : 'bg-surface'}`}>

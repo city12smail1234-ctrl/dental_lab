@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { INV_TONE, Invoice, invStatus } from '@/components/CaseInvoice';
 import { PayDues } from '@/components/PayDues';
 import { api } from '@/lib/api';
 import { money } from '@/lib/money';
@@ -8,12 +9,14 @@ import { usePolling } from '@/lib/poll';
 import { usePrefs } from '@/lib/prefs';
 
 export type Entry = { id: number; kind: string; amount: number; source_type: string; source_id: string | null; reference: string | null; method: string | null; note: string | null; created_at: string };
-type Stmt = { summary: { balance: number; charged: number; credited: number }; entries: Entry[] };
+type Stmt = { summary: { balance: number; charged: number; credited: number }; entries: Entry[]; invoices: Invoice[] };
 
 export default function Account() {
   const { t, lang } = usePrefs();
   const [s, setS] = useState<Stmt | null>(null);
   const [err, setErr] = useState('');
+  const [pay, setPay] = useState<number | null>(null);
+  useEffect(() => { const v = Number(new URLSearchParams(location.search).get('pay')); if (v > 0) setPay(v); }, []);
   const load = useCallback(() => api<Stmt>('/account').then(setS).catch((e) => setErr(e.message)), []);
   useEffect(() => { load(); }, [load]);
   usePolling(load);
@@ -34,7 +37,22 @@ export default function Account() {
           <p><span className="block text-muted">{t('acctPaid')}</span><b dir="ltr">{money(s.summary.credited, lang)}</b></p>
         </div>
       </section>
-      <PayDues balance={b} onChange={load} />
+      {s.invoices.length > 0 && (
+        <section className="space-y-3 rounded-2xl border p-5">
+          <h2 className="font-semibold">{t('invList')}</h2>
+          <ul className="divide-y text-sm">
+            {s.invoices.map((i) => { const st = invStatus(i); return (
+              <li key={i.case_id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <span><Link href={`/cases/${i.case_id}`} className="font-medium text-cyan-accent" dir="ltr">{i.case_number}</Link> · {lang === 'ar' ? i.service_name_ar : i.service_name_en}{i.quantity > 1 ? ` ×${i.quantity}` : ''}
+                  <span className="block text-muted" dir="ltr">{money(i.total, lang)} · {t('invPaid')} {money(i.paid, lang)} · {t('invRemaining')} {money(i.remaining, lang)}</span></span>
+                <span className="flex items-center gap-2"><span className={`rounded-full px-3 py-0.5 text-xs ${INV_TONE[st]}`}>{t(`invS_${st}`)}</span>
+                  {i.remaining > 0 && <button onClick={() => setPay(i.remaining + Math.random() * 1e-9)} className="rounded-lg border px-3 py-1 hover:bg-surface">{t('invPay')}</button>}</span>
+              </li>); })}
+          </ul>
+          <p className="text-xs text-muted">{t('invHint')}</p>
+        </section>
+      )}
+      <PayDues balance={b} onChange={load} prefill={pay} />
       <p className="text-sm text-muted">{t('acctNote')}</p>
       <section>
         <h2 className="mb-3 font-semibold">{t('acctEntries')}</h2>

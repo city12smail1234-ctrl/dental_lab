@@ -2,12 +2,13 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { INV_TONE, Invoice, invStatus } from '@/components/CaseInvoice';
 import { api } from '@/lib/api';
 import { money } from '@/lib/money';
 import { usePrefs } from '@/lib/prefs';
 
 type Entry = { id: number; kind: string; amount: number; source_type: string; source_id: string | null; reference: string | null; method: string | null; note: string | null; created_at: string };
-type Stmt = { summary: { balance: number; charged: number; credited: number }; entries: Entry[]; doctor: { full_name: string | null; email: string | null; clinic_name: string | null } };
+type Stmt = { summary: { balance: number; charged: number; credited: number }; entries: Entry[]; invoices: Invoice[]; doctor: { full_name: string | null; email: string | null; clinic_name: string | null } };
 const METHODS = ['cash', 'vodafone_cash', 'instapay', 'bank', 'other'];
 
 export default function AdminAccount() {
@@ -15,6 +16,7 @@ export default function AdminAccount() {
   const { t, lang } = usePrefs();
   const [s, setS] = useState<Stmt | null>(null);
   const [err, setErr] = useState('');
+  const [info, setInfo] = useState('');
   const [pay, setPay] = useState({ amount: '', method: 'cash', note: '' });
   const [adj, setAdj] = useState({ amount: '', note: '' });
 
@@ -43,6 +45,24 @@ export default function AdminAccount() {
         <p className="text-sm text-muted">{b > 0 ? t('acaOwes') : b < 0 ? t('acaCredit') : t('acaSettled')}</p>
         <p className="text-4xl font-semibold" dir="ltr">{money(Math.abs(b), lang)}</p>
       </section>
+
+      {b > 0 && (
+        <div className="flex flex-wrap items-center gap-3 print:hidden">
+          <button onClick={async () => { setErr(''); setInfo(''); try { await api(`/admin/accounts/${id}/remind`, { method: 'POST' }); setInfo(t('acaReminded')); } catch (e) { setErr((e as Error).message); } }} className="rounded-lg border px-4 py-2 text-sm hover:bg-surface">{t('acaRemind')}</button>
+          {info && <span role="status" className="text-sm text-emerald-600 dark:text-emerald-400">{info}</span>}
+        </div>
+      )}
+
+      {s.invoices.length > 0 && (
+        <section className="space-y-2 rounded-2xl border p-4">
+          <h2 className="font-medium">{t('invList')}</h2>
+          <ul className="divide-y text-sm">{s.invoices.map((i) => { const st = invStatus(i); return (
+            <li key={i.case_id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+              <span><Link href={`/admin/cases/${i.case_id}`} className="text-cyan-accent" dir="ltr">{i.case_number}</Link> · <span dir="ltr">{money(i.total, lang)}</span><span className="text-muted"> · {t('invRemaining')} <span dir="ltr">{money(i.remaining, lang)}</span></span></span>
+              <span className={`rounded-full px-3 py-0.5 text-xs ${INV_TONE[st]}`}>{t(`invS_${st}`)}</span>
+            </li>); })}</ul>
+        </section>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         <form className="space-y-2 rounded-2xl border p-4" onSubmit={(e) => { e.preventDefault(); post('payments', { amount: Number(pay.amount), method: pay.method, note: pay.note || undefined }, () => setPay({ amount: '', method: 'cash', note: '' })); }}>

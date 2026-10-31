@@ -10,6 +10,7 @@ const T: Record<Lang, Record<string, string>> = {
     payment_paid: '✅ تم تأكيد دفع الطلب {ref}', payment_rejected: '⚠️ تم رفض إيصال الطلب {ref}، أرسل إيصالًا صحيحًا', doctor_new: '👤 طبيب جديد سجّل: {ref}',
     doctor_status: '{status}', delivery_new: '🚚 طلب توصيل جديد {ref}{by}', delivery_status: 'التوصيل {ref}: {status}', delivery_failed: '⚠️ فشل توصيل {ref}{by}',
     delivery_assigned: '🚚 تم تعيين توصيل لك {ref}', dues_submitted: '💰 دفعة جديدة {ref} ج.م بانتظار التأكيد{by}', dues_confirmed: '✅ تم تأكيد دفعتك {ref} ج.م وخُصمت من حسابك', dues_rejected: '⚠️ تم رفض دفعتك {ref} ج.م',
+    dues_reminder: '🔔 تذكير: المستحق عليك {ref} ج.م، ممكن تدفعه من حسابك على الموقع',
     test: '✅ رسالة تجريبية من City Smile Dental Lab. التنبيهات شغالة.', generic: 'إشعار جديد',
   },
   en: {
@@ -18,6 +19,7 @@ const T: Record<Lang, Record<string, string>> = {
     payment_paid: '✅ Payment confirmed for order {ref}', payment_rejected: '⚠️ The receipt for order {ref} was rejected, please send a valid one', doctor_new: '👤 New doctor registered: {ref}',
     doctor_status: '{status}', delivery_new: '🚚 New delivery request {ref}{by}', delivery_status: 'Delivery {ref}: {status}', delivery_failed: '⚠️ Delivery {ref} failed{by}',
     delivery_assigned: '🚚 A delivery was assigned to you {ref}', dues_submitted: '💰 New payment {ref} EGP awaiting confirmation{by}', dues_confirmed: '✅ Your payment of {ref} EGP was confirmed and deducted from your account', dues_rejected: '⚠️ Your payment of {ref} EGP was rejected',
+    dues_reminder: '🔔 Reminder: you owe {ref} EGP, you can pay it from your account on the website',
     test: '✅ Test message from City Smile Dental Lab. Alerts are working.', generic: 'New notification',
   },
 };

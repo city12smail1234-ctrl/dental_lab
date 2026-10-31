@@ -18,14 +18,16 @@ export class AccountsService {
   constructor(private readonly sb: SupabaseService) {}
 
   private async statement(doctorId: string) {
-    const [bal, ent] = await Promise.all([
+    const [bal, ent, inv] = await Promise.all([
       this.sb.admin.from('doctor_balances').select('*').eq('doctor_id', doctorId).maybeSingle(),
       this.sb.admin.from('doctor_account_entries').select('id,kind,amount,source_type,source_id,reference,method,note,created_at').eq('doctor_id', doctorId).order('id', { ascending: false }).limit(300),
+      this.sb.admin.rpc('case_invoices', { p_doctor: doctorId }),
     ]);
     if (ent.error) throw new BadRequestException(ent.error.message);
     return {
       summary: { balance: Number(bal.data?.balance ?? 0), charged: Number(bal.data?.charged ?? 0), credited: Number(bal.data?.credited ?? 0) },
       entries: ent.data ?? [],
+      invoices: inv.data ?? [],
       doctor: bal.data ? { id: bal.data.doctor_id, full_name: bal.data.full_name, email: bal.data.email, clinic_name: bal.data.clinic_name } : null,
     };
   }
@@ -67,5 +69,18 @@ export class AccountsService {
     if (error) throw new BadRequestException(error.message);
     await this.audit(actor, 'account.adjusted', doctorId, { amount: dto.amount, note: dto.note });
     return this.one(doctorId);
+  }
+
+  /** A nudge to the doctor (in the app, and on Telegram/WhatsApp if he connected them). At most once every 12 hours. */
+  async remind(actor: string, doctorId: string) {
+    const s = await this.one(doctorId);
+    if (s.summary.balance <= 0) throw new BadRequestException('This doctor has nothing due');
+    const since = new Date(Date.now() - 12 * 3_600_000).toISOString();
+    const { count } = await this.sb.admin.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', doctorId).eq('kind', 'dues_reminder').gt('created_at', since);
+    if ((count ?? 0) > 0) throw new BadRequestException('A reminder was already sent in the last 12 hours');
+    const { error } = await this.sb.admin.from('notifications').insert({ user_id: doctorId, kind: 'dues_reminder', params: { ref: String(s.summary.balance) }, link: '/account' });
+    if (error) throw new BadRequestException(error.message);
+    await this.audit(actor, 'account.reminder_sent', doctorId, { balance: s.summary.balance });
+    return { sent: true };
   }
 }

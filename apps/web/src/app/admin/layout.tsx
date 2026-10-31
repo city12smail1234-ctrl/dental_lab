@@ -20,6 +20,7 @@ const ICONS: Record<string, string> = {
   cog: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12h3M2 12h3M12 2v3M12 19v3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2',
   wallet: 'M3 7h15a3 3 0 0 1 3 3v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l12-3v3M17 14h2',
   shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  image: 'M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5M9 9.5h.01',
   more: 'M5 12h.01M12 12h.01M19 12h.01',
 };
 const Icon = ({ n, s = 18 }: { n: string; s?: number }) => (
@@ -39,6 +40,7 @@ const GROUPS: { h: string; items: Item[] }[] = [
   { h: 'ngCatalog', items: [
     { k: 'aProducts', href: '/admin/products', icon: 'box', roles: ['lab_manager', 'inventory_manager'] },
     { k: 'aPrices', href: '/admin/prices', icon: 'tag', roles: ['lab_manager'] },
+    { k: 'aWorks', href: '/admin/works', icon: 'image', roles: ['lab_manager'] },
   ] },
   { h: 'ngBusiness', items: [
     { k: 'aDues', href: '/admin/payments', icon: 'wallet', badge: 'dues', roles: ['lab_manager', 'accountant'] },
